@@ -1,10 +1,10 @@
 import Archetype, { Mage } from './Archetypes';
-import IEnergy from './Energy';
-import IFighter from './Fighter/Fighter';
+import Energy from './Energy';
+import Fighter from './Fighter/Fighter';
 import Race, { Elf } from './Races';
 import getRandomInt from './utils';
 
-class Character implements IFighter {
+class Character implements Fighter {
   private _race: Race;
   private _archetype: Archetype;
   private _maxLifePoints: number;
@@ -12,14 +12,15 @@ class Character implements IFighter {
   private _strength: number;
   private _defense: number;
   private _dexterity: number;
-  private _energy: IEnergy;
+  private _energy: Energy;
   private _name: string;
   
   constructor(name: string) {
+    this._name = name;
     this._race = new Elf(name, 10);
     this._archetype = new Mage(name);
-    this._maxLifePoints = this._race.maxLifePoints / 2;
-    this._lifePoints = this._race.maxLifePoints;
+    this._maxLifePoints = Math.floor(this._race.maxLifePoints / 2);
+    this._lifePoints = this._maxLifePoints;
     this._strength = getRandomInt(1, 10);
     this._defense = getRandomInt(1, 10);
     this._dexterity = this._race.dexterity;
@@ -27,41 +28,40 @@ class Character implements IFighter {
       type_: this._archetype.energyType,
       amount: getRandomInt(1, 10),
     };
-    this._name = name;
   }
 
-  public get race(): Race {
+  get race(): Race {
     return this._race;
   }
 
-  public get archetype(): Archetype {
+  get archetype(): Archetype {
     return this._archetype;
   }
 
-  public get lifePoints(): number {
+  get lifePoints(): number {
     return this._lifePoints;
   }
 
-  public get strength(): number {
+  get strength(): number {
     return this._strength;
   }
 
-  public get defense(): number {
+  get defense(): number {
     return this._defense;
   }
 
-  public get dexterity(): number {
+  get dexterity(): number {
     return this._dexterity;
   }
 
-  public get energy(): IEnergy {
+  get energy(): Energy {
     return {
       type_: this._energy.type_,
       amount: this._energy.amount,
     };
   }
 
-  public get name(): string {
+  get name(): string {
     return this._name;
   }
 
@@ -72,12 +72,12 @@ class Character implements IFighter {
     return this.lifePoints;
   }
 
-  attack(enemy: IFighter) {
+  attack(enemy: Fighter) {
     enemy.receiveDamage(this.strength);
   }
 
   levelUp() {
-    const mxPoints = getRandomInt(1, 10) + this._maxLifePoints;
+    const mxPoints = this._maxLifePoints + getRandomInt(1, 10);
     if (mxPoints >= this.race.maxLifePoints) {
       this._maxLifePoints = this.race.maxLifePoints;
     } else {
@@ -92,7 +92,7 @@ class Character implements IFighter {
     this._energy.amount = 10;
   }
 
-  special(enemy: IFighter) {
+  special(enemy: Fighter) {
     if (this._energy.amount === 10) { 
       enemy.receiveDamage(this.strength * 5); 
     }
